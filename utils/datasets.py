@@ -7,7 +7,7 @@ from PIL import Image
 import torch
 import torch.nn.functional as F
 
-from utils.augmentations import horisontal_flip
+from utils.augmentations import horisontal_flip, gaussian_noise
 from torch.utils.data import Dataset
 import torchvision.transforms as transforms
 
@@ -37,7 +37,8 @@ def random_resize(images, min_size=288, max_size=448):
 
 
 class ImageFolder(Dataset):
-    def __init__(self, folder_path, img_size=416):
+    def __init__(self, folder_path, img_size=416, noise=False):
+        self.noise = noise
         self.files = sorted(glob.glob("%s/*.*" % folder_path))
         self.img_size = img_size
 
@@ -50,6 +51,11 @@ class ImageFolder(Dataset):
         # Resize
         img = resize(img, self.img_size)
 
+        # Add gaussian noise
+        if self.noise:
+            # if np.random.random() < 0.5:
+            img, _ = gaussian_noise(img)
+
         return img_path, img
 
     def __len__(self):
@@ -57,7 +63,7 @@ class ImageFolder(Dataset):
 
 
 class ListDataset(Dataset):
-    def __init__(self, list_path, img_size=416, augment=True, multiscale=True, normalized_labels=True):
+    def __init__(self, list_path, img_size=416, augment=True, multiscale=True, normalized_labels=True, noise=False):
         with open(list_path, "r") as file:
             self.img_files = file.readlines()
 
@@ -68,6 +74,7 @@ class ListDataset(Dataset):
         self.img_size = img_size
         self.max_objects = 100
         self.augment = augment
+        self.noise = noise
         self.multiscale = multiscale
         self.normalized_labels = normalized_labels
         self.min_size = self.img_size - 3 * 32
@@ -128,6 +135,10 @@ class ListDataset(Dataset):
         if self.augment:
             if np.random.random() < 0.5:
                 img, targets = horisontal_flip(img, targets)
+        # Add gaussian noise
+        if self.noise:
+            if np.random.random() < 0.5:
+            img, targets = gaussian_noise(img)
 
         return img_path, img, targets
 

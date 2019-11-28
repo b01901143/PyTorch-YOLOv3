@@ -53,7 +53,7 @@ if __name__ == "__main__":
     model.eval()  # Set in evaluation mode
 
     dataloader = DataLoader(
-        ImageFolder(opt.image_folder, img_size=opt.img_size),
+        ImageFolder(opt.image_folder, img_size=opt.img_size, noise=True),
         batch_size=opt.batch_size,
         shuffle=False,
         num_workers=opt.n_cpu,
