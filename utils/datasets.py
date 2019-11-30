@@ -54,7 +54,7 @@ class ImageFolder(Dataset):
         # Add gaussian noise
         if self.noise:
             # if np.random.random() < 0.5:
-            img, _ = gaussian_noise(img)
+            img = gaussian_noise(img)
 
         return img_path, img
 
@@ -138,7 +138,7 @@ class ListDataset(Dataset):
         # Add gaussian noise
         if self.noise:
             if np.random.random() < 0.5:
-            img, targets = gaussian_noise(img)
+                img = gaussian_noise(img)
 
         return img_path, img, targets
 

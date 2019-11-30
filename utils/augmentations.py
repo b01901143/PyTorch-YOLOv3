@@ -9,5 +9,6 @@ def horisontal_flip(images, targets):
     return images, targets
 
 def gaussian_noise(images):
-    targets = images + torch.normal(0, 1, size=images.size())
-    return images, targets
+    images = images + torch.normal(0, 1, size=images.size())
+    images[images<0] = 0
+    return images
