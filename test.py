@@ -24,7 +24,7 @@ def evaluate(model, path, iou_thres, conf_thres, nms_thres, img_size, batch_size
     model.eval()
 
     # Get dataloader
-    dataset = ListDataset(path, img_size=img_size, augment=False, multiscale=False)
+    dataset = ListDataset(path, img_size=img_size, augment=False, multiscale=False, noise=True)
     dataloader = torch.utils.data.DataLoader(
         dataset, batch_size=batch_size, shuffle=False, num_workers=1, collate_fn=dataset.collate_fn
     )
@@ -95,7 +95,7 @@ if __name__ == "__main__":
         conf_thres=opt.conf_thres,
         nms_thres=opt.nms_thres,
         img_size=opt.img_size,
-        batch_size=8,
+        batch_size=opt.batch_size,
     )
 
     print("Average Precisions:")
