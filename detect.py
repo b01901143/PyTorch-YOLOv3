@@ -98,7 +98,18 @@ if __name__ == "__main__":
         print("(%d) Image: '%s'" % (img_i, path))
 
         # Create plot
-        img = np.array(Image.open(path))
+        img = Image.open(path)
+        img = np.array(img)
+        row,col,ch= img.shape
+        # if self.noise:    
+        mean = 0.0
+        # sigma = 30
+        gauss = np.array(img.shape)
+        gauss = np.random.normal(mean,sigma,(row,col,ch))
+        gauss = gauss.reshape(row,col,ch)
+        noisy = img + gauss
+        img = noisy.astype('uint8')
+        # img = np.array(Image.open(path))
         plt.figure()
         fig, ax = plt.subplots(1)
         ax.imshow(img)

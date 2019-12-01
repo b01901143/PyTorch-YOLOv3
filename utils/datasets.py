@@ -14,6 +14,8 @@ import torchvision.transforms as transforms
 from PIL import ImageFile
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
+sigma = 30
+
 def pad_to_square(img, pad_value):
     c, h, w = img.shape
     dim_diff = np.abs(h - w)
@@ -46,17 +48,30 @@ class ImageFolder(Dataset):
 
     def __getitem__(self, index):
         img_path = self.files[index % len(self.files)]
+
+        img = Image.open(img_path)
+        img = np.array(img)
+        row,col,ch= img.shape
+        if self.noise:    
+            mean = 0.0
+            # sigma = 30
+            gauss = np.array(img.shape)
+            gauss = np.random.normal(mean,sigma,(row,col,ch))
+            gauss = gauss.reshape(row,col,ch)
+            noisy = img + gauss
+            img = noisy.astype('uint8')
         # Extract image as PyTorch tensor
-        img = transforms.ToTensor()(Image.open(img_path))
+        img = transforms.ToTensor()(img)
+
+        # Add gaussian noise
+        # if self.noise:
+        #     # if np.random.random() < 0.5:
+        #     img = gaussian_noise(img)
+
         # Pad to square resolution
         img, _ = pad_to_square(img, 0)
         # Resize
         img = resize(img, self.img_size)
-
-        # Add gaussian noise
-        if self.noise:
-            # if np.random.random() < 0.5:
-            img = gaussian_noise(img)
 
         return img_path, img
 
@@ -91,8 +106,19 @@ class ListDataset(Dataset):
 
         img_path = self.img_files[index % len(self.img_files)].rstrip()
 
+        img = Image.open(img_path).convert('RGB')
+        img = np.array(img)
+        row,col,ch= img.shape
+        if self.noise:    
+            mean = 0.0
+            # sigma = 30
+            gauss = np.array(img.shape)
+            gauss = np.random.normal(mean,sigma,(row,col,ch))
+            gauss = gauss.reshape(row,col,ch)
+            noisy = img + gauss
+            img = noisy.astype('uint8')
         # Extract image as PyTorch tensor
-        img = transforms.ToTensor()(Image.open(img_path).convert('RGB'))
+        img = transforms.ToTensor()(img)
 
         # Handle images with less than three channels
         if len(img.shape) != 3:
@@ -102,8 +128,8 @@ class ListDataset(Dataset):
         _, h, w = img.shape
         h_factor, w_factor = (h, w) if self.normalized_labels else (1, 1)
         # Pad to square resolution
-        img, pad = pad_to_square(img, 0)
-        _, padded_h, padded_w = img.shape
+        img_null, pad = pad_to_square(img, 0)
+        _, padded_h, padded_w = img_null.shape
 
         # ---------
         #  Label
@@ -138,9 +164,13 @@ class ListDataset(Dataset):
             if np.random.random() < 0.5:
                 img, targets = horisontal_flip(img, targets)
         # Add gaussian noise
-        if self.noise:
-            if np.random.random() < 0.5:
-                img = gaussian_noise(img)
+        # if self.noise:
+        #     if np.random.random() < 0.5:
+        #         img = gaussian_noise(img)
+
+        # Pad to square resolution
+        img, pad = pad_to_square(img, 0)
+        _, padded_h, padded_w = img.shape
 
         return img_path, img, targets
 
