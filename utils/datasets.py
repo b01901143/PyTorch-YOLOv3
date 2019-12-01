@@ -128,8 +128,8 @@ class ListDataset(Dataset):
         _, h, w = img.shape
         h_factor, w_factor = (h, w) if self.normalized_labels else (1, 1)
         # Pad to square resolution
-        img_null, pad = pad_to_square(img, 0)
-        _, padded_h, padded_w = img_null.shape
+        img, pad = pad_to_square(img, 0)
+        _, padded_h, padded_w = img.shape
 
         # ---------
         #  Label
@@ -163,14 +163,6 @@ class ListDataset(Dataset):
         if self.augment:
             if np.random.random() < 0.5:
                 img, targets = horisontal_flip(img, targets)
-        # Add gaussian noise
-        # if self.noise:
-        #     if np.random.random() < 0.5:
-        #         img = gaussian_noise(img)
-
-        # Pad to square resolution
-        img, pad = pad_to_square(img, 0)
-        _, padded_h, padded_w = img.shape
 
         return img_path, img, targets
 
