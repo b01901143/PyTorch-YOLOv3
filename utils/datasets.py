@@ -110,13 +110,14 @@ class ListDataset(Dataset):
         img = np.array(img)
         row,col,ch= img.shape
         if self.noise:    
-            mean = 0.0
-            # sigma = 30
-            gauss = np.array(img.shape)
-            gauss = np.random.normal(mean,sigma,(row,col,ch))
-            gauss = gauss.reshape(row,col,ch)
-            noisy = img + gauss
-            img = noisy.astype('uint8')
+            if np.random.random() < 0.5:
+                mean = 0.0
+                # sigma = 30
+                gauss = np.array(img.shape)
+                gauss = np.random.normal(mean,sigma,(row,col,ch))
+                gauss = gauss.reshape(row,col,ch)
+                noisy = img + gauss
+                img = noisy.astype('uint8')
         # Extract image as PyTorch tensor
         img = transforms.ToTensor()(img)
 
